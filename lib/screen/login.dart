@@ -57,7 +57,7 @@ class _LoginState extends State<Login> {
   Center _buildLoginButton() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -69,14 +69,24 @@ class _LoginState extends State<Login> {
                 color: Theme.of(context).primaryColor,
               ),
             ),
-            SizedBox(height: 100),
+            Divider(color: Colors.transparent, height: 100),
+            Text(
+              "⬤ scroll through your timeline 🚀 \n⬤ scroll through home timeline 🌟",
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.black,
+              ),
+            ),
+            Divider(color: Colors.transparent, height: 100),
             TextButton(
               onPressed: () => _authBloc.add(InitLogin()),
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
                 decoration: BoxDecoration(
-                  color: Colors.blue,
+                  gradient: LinearGradient(
+                    colors: [Colors.blue[600], Colors.lightBlue[400]],
+                  ),
                   border: Border.all(color: Colors.blueGrey),
                   borderRadius: BorderRadius.circular(30),
                 ),
