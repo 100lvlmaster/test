@@ -2,49 +2,42 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_twitter_login/flutter_twitter_login.dart';
 import 'package:test_twitter/config/const.dart';
 
-class Auth {
-  final FlutterSecureStorage storage = FlutterSecureStorage();
+class AuthRepository {
+  final FlutterSecureStorage _storage = FlutterSecureStorage();
 
-  static final TwitterLogin twitterLogin = new TwitterLogin(
-    consumerKey: Const.consumerKey,
-    consumerSecret: Const.consumerSecret,
+  static final TwitterLogin _twitterLogin = TwitterLogin(
+    consumerKey: Secrets.consumerKey,
+    consumerSecret: Secrets.consumerSecret,
   );
 
-  static void login() async {
-    final TwitterLoginResult result = await twitterLogin.authorize();
-    String newMessage;
+  Future<bool> login() async {
+    final TwitterLoginResult result = await _twitterLogin.authorize();
+    bool isSuccess = false;
     switch (result.status) {
       case TwitterLoginStatus.loggedIn:
-        newMessage = 'Logged in! username: ${result.session.username}';
+        isSuccess = await _saveToStorage(result.session);
         break;
       case TwitterLoginStatus.cancelledByUser:
-        newMessage = 'Login cancelled by user.';
+        isSuccess = false;
         break;
       case TwitterLoginStatus.error:
-        newMessage = 'Login error: ${result.errorMessage}';
+        isSuccess = false;
         break;
     }
-    // storage.write(key: 'name', value: result.session.)
+    return isSuccess;
   }
-  // Future<UserCredential> signInWithTwitter() async {
-  //   // Create a TwitterLogin instance
-  //   final TwitterLogin twitterLogin = new TwitterLogin(
-  //     consumerKey: '<your consumer key>',
-  //     consumerSecret: ' <your consumer secret>',
-  //   );
 
-  //   // Trigger the sign-in flow
-  //   final TwitterLoginResult loginResult = await twitterLogin.authorize();
+  Future<bool> _saveToStorage(TwitterSession session) async {
+    try {
+      await _storage.write(key: Const.userId, value: session.userId);
+      await _storage.write(key: Const.userName, value: session.username);
+      await _storage.write(key: Const.userSecret, value: session.secret);
+      await _storage.write(key: Const.userToken, value: session.token);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
 
-  //   // Get the Logged In session
-  //   final TwitterSession twitterSession = loginResult.session;
-
-  //   // Create a credential from the access token
-  //   final AuthCredential twitterAuthCredential = TwitterAuthProvider.credential(
-  //       accessToken: twitterSession.token, secret: twitterSession.secret);
-
-  //   // Once signed in, return the UserCredential
-  //   return await FirebaseAuth.instance
-  //       .signInWithCredential(twitterAuthCredential);
-  // }
+  Future<bool> isLoggedIn() async => (await _storage.readAll()).isNotEmpty;
 }
